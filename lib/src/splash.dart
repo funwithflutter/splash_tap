@@ -1,19 +1,57 @@
 import 'package:flutter/material.dart';
 
 class Splash extends StatefulWidget {
+  /// Child widget. Could be anything that should be surrounded by the splash.
+  ///
+  /// The bigger the child the bigger the splash effect - which is constrained
+  /// by the [minRadius] and [maxRadius]
   final Widget child;
+
+  /// [onTap] method, should not be null or empty.
   final GestureTapCallback onTap;
 
-  const Splash({Key key, this.onTap, this.child}) : super(key: key);
+  /// The color of the splash effect. The default [splashColor] is black.
+  final Color splashColor;
+
+  /// The minimum radius of the splash effect.
+  /// Should be set if the [child] widget is very small to create a
+  /// more desired effect.
+  ///
+  /// The default minimum radius is set to [defaultMinRadius]
+  final double minRadius;
+
+  /// The maximum radius of the splash effect.
+  /// Regardless of how big the child widget is, the splash will not extend
+  /// the [maxRadius]. Should be set if a larger splash effect is desired.
+  ///
+  /// The default maximum radius is set to [defaultMaxRadius]
+  final double maxRadius;
+
+  static const double defaultMinRadius = 50;
+  static const double defaultMaxRadius = 120;
+
+  /// Creates a splash effect onTap, surrounding its [child] widget.
+  ///
+  /// The [child] parameter can not be null.
+  /// The tap is disabled if the [onTap] parameter is null.
+  Splash({
+    Key key,
+    @required this.onTap,
+    @required this.child,
+    this.splashColor,
+    this.minRadius = defaultMinRadius,
+    this.maxRadius = defaultMaxRadius,
+  })  : assert(minRadius != null),
+        assert(maxRadius != null),
+        assert(minRadius > 0),
+        assert(minRadius < maxRadius),
+        super(key: key);
 
   @override
   _SplashState createState() => _SplashState();
 }
 
 class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
-  static const double minRadius = 50;
-  static const double maxRadius = 120;
-
   AnimationController controller;
   Tween<double> radiusTween;
   Tween<double> borderWidthTween;
@@ -25,13 +63,13 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     controller =
-    AnimationController(vsync: this, duration: Duration(milliseconds: 350))
-      ..addListener(() {
-        setState(() {});
-      })
-      ..addStatusListener((listener) {
-        status = listener;
-      });
+        AnimationController(vsync: this, duration: Duration(milliseconds: 350))
+          ..addListener(() {
+            setState(() {});
+          })
+          ..addStatusListener((listener) {
+            status = listener;
+          });
     radiusTween = Tween<double>(begin: 0, end: 50);
     radiusAnimation = radiusTween
         .animate(CurvedAnimation(curve: Curves.ease, parent: controller));
@@ -46,7 +84,13 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
     controller.forward(from: 0);
   }
 
+  /// Buttons are disabled by default. To enable a button, set its [onTap]
+  /// property to a non-null value.
+  bool get _enabled => widget.onTap != null;
+
   void _handleTap(TapUpDetails tapDetails) {
+    if (!_enabled) return;
+
     RenderBox renderBox = context.findRenderObject();
     _tapPosition = renderBox.globalToLocal(tapDetails.globalPosition);
     double radius = (renderBox.size.width > renderBox.size.height)
@@ -54,10 +98,10 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
         : renderBox.size.height;
 
     double constraintRadius;
-    if (radius > maxRadius) {
-      constraintRadius = maxRadius;
-    } else if (radius < minRadius) {
-      constraintRadius = minRadius;
+    if (radius > widget.maxRadius) {
+      constraintRadius = widget.maxRadius;
+    } else if (radius < widget.minRadius) {
+      constraintRadius = widget.minRadius;
     } else {
       constraintRadius = radius;
     }
@@ -73,11 +117,12 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      foregroundPainter: SplashPaint(
+      foregroundPainter: _SplashPaint(
         radius: radiusAnimation.value,
         borderWidth: borderWidthAnimation.value,
         status: status,
         tapPosition: _tapPosition,
+        color: widget.splashColor ?? Colors.black,
       ),
       child: GestureDetector(
         child: widget.child,
@@ -87,22 +132,24 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
   }
 }
 
-class SplashPaint extends CustomPainter {
+class _SplashPaint extends CustomPainter {
   final double radius;
   final double borderWidth;
   final AnimationStatus status;
   final Offset tapPosition;
+  final Color color;
   final Paint blackPaint;
 
-  SplashPaint({
+  _SplashPaint({
     @required this.radius,
     @required this.borderWidth,
     @required this.status,
     @required this.tapPosition,
+    @required this.color,
   }) : blackPaint = Paint()
-    ..color = Colors.black
-    ..style = PaintingStyle.stroke
-    ..strokeWidth = borderWidth;
+          ..color = color
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = borderWidth;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -112,7 +159,7 @@ class SplashPaint extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(SplashPaint oldDelegate) {
+  bool shouldRepaint(_SplashPaint oldDelegate) {
     if (radius != oldDelegate.radius) {
       return true;
     } else {

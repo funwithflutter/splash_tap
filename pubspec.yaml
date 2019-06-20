@@ -1,6 +1,6 @@
 name: splash_tap
-description: Makes a nice splash effect when tapping it's child widget
-version: 0.0.1
+description: Makes an interesting splash effect when tapping it's child widget
+version: 0.1.0
 author: Fun with Flutter <funwithflutter@gmail.com>
 homepage: https://github.com/funwithflutter/splash_tap
 
