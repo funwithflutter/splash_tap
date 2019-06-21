@@ -84,6 +84,12 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
     controller.forward(from: 0);
   }
 
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   /// Buttons are disabled by default. To enable a button, set its [onTap]
   /// property to a non-null value.
   bool get _enabled => widget.onTap != null;
