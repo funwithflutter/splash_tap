@@ -1,6 +1,23 @@
 import 'package:flutter/material.dart';
 
 class Splash extends StatefulWidget {
+  /// Creates a splash effect onTap, surrounding its [child] widget.
+  ///
+  /// The [child] parameter can not be null.
+  /// The tap is disabled if the [onTap] parameter is null.
+  Splash({
+    Key key,
+    @required this.onTap,
+    @required this.child,
+    this.splashColor,
+    this.minRadius = defaultMinRadius,
+    this.maxRadius = defaultMaxRadius,
+  })  : assert(minRadius != null),
+        assert(maxRadius != null),
+        assert(minRadius > 0),
+        assert(minRadius < maxRadius),
+        super(key: key);
+
   /// Child widget. Could be anything that should be surrounded by the splash.
   ///
   /// The bigger the child the bigger the splash effect - which is constrained
@@ -30,23 +47,6 @@ class Splash extends StatefulWidget {
   static const double defaultMinRadius = 50;
   static const double defaultMaxRadius = 120;
 
-  /// Creates a splash effect onTap, surrounding its [child] widget.
-  ///
-  /// The [child] parameter can not be null.
-  /// The tap is disabled if the [onTap] parameter is null.
-  Splash({
-    Key key,
-    @required this.onTap,
-    @required this.child,
-    this.splashColor,
-    this.minRadius = defaultMinRadius,
-    this.maxRadius = defaultMaxRadius,
-  })  : assert(minRadius != null),
-        assert(maxRadius != null),
-        assert(minRadius > 0),
-        assert(minRadius < maxRadius),
-        super(key: key);
-
   @override
   _SplashState createState() => _SplashState();
 }
@@ -67,7 +67,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
           ..addListener(() {
             setState(() {});
           })
-          ..addStatusListener((listener) {
+          ..addStatusListener((AnimationStatus listener) {
             status = listener;
           });
     radiusTween = Tween<double>(begin: 0, end: 50);
@@ -95,11 +95,12 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
   bool get _enabled => widget.onTap != null;
 
   void _handleTap(TapUpDetails tapDetails) {
-    if (!_enabled) return;
-
-    RenderBox renderBox = context.findRenderObject();
+    if (!_enabled) {
+      return;
+    }
+    final RenderBox renderBox = context.findRenderObject();
     _tapPosition = renderBox.globalToLocal(tapDetails.globalPosition);
-    double radius = (renderBox.size.width > renderBox.size.height)
+    final double radius = (renderBox.size.width > renderBox.size.height)
         ? renderBox.size.width
         : renderBox.size.height;
 
@@ -139,13 +140,6 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
 }
 
 class _SplashPaint extends CustomPainter {
-  final double radius;
-  final double borderWidth;
-  final AnimationStatus status;
-  final Offset tapPosition;
-  final Color color;
-  final Paint blackPaint;
-
   _SplashPaint({
     @required this.radius,
     @required this.borderWidth,
@@ -156,6 +150,13 @@ class _SplashPaint extends CustomPainter {
           ..color = color
           ..style = PaintingStyle.stroke
           ..strokeWidth = borderWidth;
+
+  final double radius;
+  final double borderWidth;
+  final AnimationStatus status;
+  final Offset tapPosition;
+  final Color color;
+  final Paint blackPaint;
 
   @override
   void paint(Canvas canvas, Size size) {
