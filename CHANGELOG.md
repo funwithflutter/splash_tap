@@ -1,3 +1,7 @@
+## [0.1.2] - June 21 2019.
+
+* Testing upload terminal change.
+
 ## [0.1.1] - June 21 2019.
 
 * Add dispose for animation.
