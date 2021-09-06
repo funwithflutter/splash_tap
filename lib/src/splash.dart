@@ -7,7 +7,7 @@ class Splash extends StatefulWidget {
   /// The tap is disabled if the [onTap] parameter is null.
   Splash({
     Key? key,
-    required this.onTap,
+    this.onTap,
     required this.child,
     this.splashColor,
     this.minRadius = defaultMinRadius,
@@ -25,7 +25,7 @@ class Splash extends StatefulWidget {
   final Widget child;
 
   /// [onTap] method, should not be null or empty.
-  final GestureTapCallback onTap;
+  final GestureTapCallback? onTap;
 
   /// The color of the splash effect. The default [splashColor] is black.
   final Color? splashColor;
@@ -118,7 +118,7 @@ class _SplashState extends State<Splash> with SingleTickerProviderStateMixin {
     borderWidthTween.end = radiusTween.end! * 0.01;
     _animate();
 
-    widget.onTap();
+    widget.onTap!();
   }
 
   @override
