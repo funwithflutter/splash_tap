@@ -23,7 +23,7 @@ class SplashTapDemo extends StatelessWidget {
       body: Center(
         child: Splash(
           onTap: () {},
-          child: Text(
+          child: const Text(
             'Splash!',
             style: TextStyle(fontSize: 32),
           ),
